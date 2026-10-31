@@ -1,0 +1,11 @@
+{
+  "framework": "vite",
+  "buildCommand": "cd platformpulse && npm install && npm run build",
+  "outputDirectory": "platformpulse/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
