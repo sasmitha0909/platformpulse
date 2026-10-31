@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------------------------
+  # Exasol Personal Database Container
+  # High-performance in-memory columnar analytical database
+  # ---------------------------------------------------------------------------
+  exasol:
+    image: exasol/docker-db:8
+    container_name: platformpulse-exasol
+    privileged: true
+    ports:
+      - "8563:8563"
+    environment:
+      - EXASOL_PASSWORD=exasol
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SELECT 1;' | exaplus -u sys -p exasol -c localhost:8563 || exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # PlatformPulse Backend API (FastAPI + pyexasol)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: platformpulse-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - EXASOL_DSN=exasol:8563
+      - EXASOL_USER=sys
+      - EXASOL_PASSWORD=exasol
+      - EXASOL_SCHEMA=PLATFORMPULSE
+    depends_on:
+      exasol:
+        condition: service_started
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # PlatformPulse Frontend UI (React 18 + Vite + Tailwind + Recharts)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./platformpulse
+      dockerfile: Dockerfile
+    container_name: platformpulse-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

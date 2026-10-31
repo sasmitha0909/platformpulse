@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+platformpulse/node_modules/
+
+# Production build
+dist/
+platformpulse/dist/
+
+# Python cache & venv
+__pycache__/
+backend/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+venv/
+.env
+
+# Logs & temp files
+*.log
+.DS_Store
+Thumbs.db
